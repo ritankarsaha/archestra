@@ -883,6 +883,13 @@ const config = {
     enableTestMcpServer: process.env.ENABLE_TEST_MCP_SERVER === "true",
     testValue: process.env.TEST_VALUE ?? null,
   },
+  auditLog: {
+    // Number of days to retain audit log entries.
+    retentionDays: Number.parseInt(
+      process.env.ARCHESTRA_AUDIT_LOG_RETENTION_DAYS || "90",
+      10,
+    ),
+  },
   authRateLimitDisabled:
     process.env.ARCHESTRA_AUTH_RATE_LIMIT_DISABLED === "true",
   isQuickstart: process.env.ARCHESTRA_QUICKSTART === "true",

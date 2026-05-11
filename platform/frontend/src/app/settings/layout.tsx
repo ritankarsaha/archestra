@@ -62,6 +62,11 @@ const PAGE_CONFIG: Record<string, { title: string; description: string }> = {
     title: "Users",
     description: "Manage users, their roles, and user invitations.",
   },
+  "/settings/audit-log": {
+    title: "Audit Log",
+    description:
+      "View a record of admin and member actions across the organization.",
+  },
 };
 
 type SettingsLayoutContextType = {

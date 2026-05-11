@@ -1,3 +1,4 @@
+export { default as auditLogsTable } from "./audit-log";
 export { default as a2aContextsTable } from "./a2a-context";
 export { default as a2aMessagesTable } from "./a2a-message";
 export { default as a2aTasksTable } from "./a2a-task";

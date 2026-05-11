@@ -1,3 +1,4 @@
+export { default as AuditLogModel } from "./audit-log";
 export { default as A2AContextModel } from "./a2a-context";
 export { default as A2AMessageModel } from "./a2a-message";
 export { default as A2ATaskModel } from "./a2a-task";

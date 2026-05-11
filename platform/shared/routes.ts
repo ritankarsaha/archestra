@@ -1,4 +1,7 @@
 export const RouteId = {
+  // Audit Log Routes
+  GetAuditLogs: "getAuditLogs",
+
   // Agent Routes
   GetAgents: "getAgents",
   GetAllAgents: "getAllAgents",

@@ -49,6 +49,7 @@ import {
   renewEmailSubscriptionIfNeeded,
 } from "@/agents/incoming-email";
 import { archestraMcpBranding } from "@/archestra-mcp-server/branding";
+import { auditLogPlugin } from "@/audit-log/plugin";
 import { fastifyAuthPlugin } from "@/auth";
 import { cacheManager } from "@/cache-manager";
 import config, { shouldRunWebServer, shouldRunWorker } from "@/config";
@@ -744,6 +745,9 @@ const startWebServer = async () => {
    */
   fastify.register(fastifyAuthPlugin);
 
+  // Captures mutations on authenticated /api/* routes for the admin audit log.
+  fastify.register(auditLogPlugin);
+
   /**
    * Enterprise license middleware to enforce license requirements on certain routes.
    * This should be registered before routes to ensure enterprise-only features are checked properly.
@@ -828,6 +832,31 @@ const startWebServer = async () => {
         );
       });
     }, PROCESSED_EMAIL_CLEANUP_INTERVAL_MS);
+
+    // Background job to enforce audit log retention policy (runs once per day)
+    const AUDIT_LOG_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
+    const auditLogCleanupIntervalId =
+      config.auditLog.retentionDays > 0
+        ? setInterval(() => {
+            const cutoff = new Date(
+              Date.now() -
+                config.auditLog.retentionDays * 24 * 60 * 60 * 1000,
+            );
+            import("@/models/audit-log")
+              .then(({ default: AuditLogModel }) =>
+                AuditLogModel.deleteOldRecords(cutoff),
+              )
+              .catch((error) => {
+                logger.error(
+                  {
+                    error:
+                      error instanceof Error ? error.message : String(error),
+                  },
+                  "Failed to run audit log retention cleanup",
+                );
+              });
+          }, AUDIT_LOG_CLEANUP_INTERVAL_MS)
+        : null;
 
     /**
      * Here we don't expose the metrics endpoint on the main API port, but we do collect metrics
@@ -919,6 +948,9 @@ const startWebServer = async () => {
         // Clear email subscription renewal interval
         clearInterval(emailRenewalIntervalId);
         clearInterval(processedEmailCleanupIntervalId);
+        if (auditLogCleanupIntervalId) {
+          clearInterval(auditLogCleanupIntervalId);
+        }
         fastify.log.info("Email background job intervals cleared");
 
         // Stop cache manager's background cleanup

@@ -1,3 +1,4 @@
+export { default as auditLogRoutes } from "./audit-log";
 export { default as browserStreamRoutes } from "@/features/browser-stream/routes/browser-stream.routes";
 export { default as a2aRoutes } from "./a2a";
 export { default as a2aV2Routes } from "./a2a-v2";
